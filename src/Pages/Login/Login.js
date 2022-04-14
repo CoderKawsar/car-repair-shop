@@ -1,8 +1,14 @@
 import React, { useRef } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import {
+  useSendPasswordResetEmail,
+  useSignInWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import auth from "../../firebase.init";
+import SocialLogin from "./SocialLogin/SocialLogin";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,14 +17,27 @@ const Login = () => {
 
   const emailRef = useRef("");
   const passwordRef = useRef("");
-  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
+  const [signInWithEmailAndPassword, user, , error] =
+    useSignInWithEmailAndPassword(auth);
+
+  const [sendPasswordResetEmail, sending, errorSending] =
+    useSendPasswordResetEmail(auth);
+
+  let errorElement;
+  if (error) {
+    errorElement = (
+      <div className="text-danger text-center">
+        <p>Error: {error?.message || error?.message}</p>
+      </div>
+    );
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
     signInWithEmailAndPassword(email, password);
-    navigate(from, { replace: true });
+    if (user) navigate(from, { replace: true });
   };
 
   const navigateToRegister = (e) => {
@@ -26,25 +45,30 @@ const Login = () => {
     navigate("/register");
   };
 
+  const resetPassword = async () => {
+    const email = emailRef.current.value;
+    if (email) {
+      await sendPasswordResetEmail(email);
+      toast("Password Reseting!");
+    } else {
+      toast("Please enter password");
+    }
+  };
+
   return (
     <div className="w-50 mx-auto mt-5">
       <h2 className="text-primary text-center">Please Login</h2>
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
           <Form.Control
             ref={emailRef}
             type="email"
             placeholder="Enter email"
             required
           />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
           <Form.Control
             ref={passwordRef}
             type="password"
@@ -52,11 +76,8 @@ const Login = () => {
             required
           />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-          <Form.Check type="checkbox" label="Check me out" />
-        </Form.Group>
         <Button variant="primary" type="submit">
-          Submit
+          Login
         </Button>
       </Form>
       <p>
@@ -65,6 +86,15 @@ const Login = () => {
           Register Now
         </span>
       </p>
+      <p>
+        Forgot Password?
+        <span className="ms-2 btn btn-danger" onClick={resetPassword}>
+          Reset Password
+        </span>
+      </p>
+      {errorElement}
+      <SocialLogin />
+      <ToastContainer />
     </div>
   );
 };

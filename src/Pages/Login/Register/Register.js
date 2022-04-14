@@ -1,19 +1,41 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Register.css";
 import auth from "../../../firebase.init";
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import {
+  useCreateUserWithEmailAndPassword,
+  useUpdateProfile,
+} from "react-firebase-hooks/auth";
+import SocialLogin from "../SocialLogin/SocialLogin";
 
 const Register = () => {
-  const [createUserWithEmailAndPassword] =
-    useCreateUserWithEmailAndPassword(auth);
-  const handleRegister = (event) => {
+  const [agree, setAgree] = useState(false);
+  const navigate = useNavigate();
+  const [createUserWithEmailAndPassword, user, , error] =
+    useCreateUserWithEmailAndPassword(auth, { sendEmailVerification: true });
+  const [updateProfile, updating, updateError] = useUpdateProfile(auth);
+
+  let errorElement;
+  if (error) {
+    errorElement = (
+      <div className="text-danger text-center">
+        <p>Error: {error?.message || error?.message}</p>
+      </div>
+    );
+  }
+
+  const handleRegister = async (event) => {
     event.preventDefault();
     const name = event.target.name.value;
     const email = event.target.email.value;
     const password = event.target.password.value;
-    createUserWithEmailAndPassword(email, password);
-    console.log(name, email, password);
+    // const agree = event.target.terms.value;
+    // if(agree){
+    //   createUserWithEmailAndPassword(email, password);
+    // }
+    await createUserWithEmailAndPassword(email, password);
+    await updateProfile({ displayName: name });
+    navigate("/home");
   };
   return (
     <div>
@@ -30,7 +52,34 @@ const Register = () => {
           id="password"
         />
         <br />
-        <input type="submit" value="Register" />
+        <input
+          onClick={() => setAgree(!agree)}
+          type="checkbox"
+          name="terms"
+          id="terms"
+        />
+        {/* <label
+          className={agree ? "ps-2 text-primary" : "ps-2 text-danger"}
+          htmlFor="terms"
+        > */}
+        <label
+          className={`ps-2 ${agree ? "text-primary" : "text-danger"}`}
+          htmlFor="terms"
+        >
+          Accept terms and conditions
+        </label>
+        <br />
+        {/* <input
+          type="submit"
+          className={`btn btn-primary mt-2 ${!agree && "disabled"}`}
+          value="Register"
+        /> */}
+        <input
+          disabled={!agree}
+          type="submit"
+          className="btn btn-primary mt-2"
+          value="Register"
+        />
         <br />
       </form>
       <p className="text-center">
@@ -39,6 +88,8 @@ const Register = () => {
           Login
         </Link>
       </p>
+      {errorElement}
+      <SocialLogin />
     </div>
   );
 };
