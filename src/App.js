@@ -9,6 +9,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ServiceDetails from "./Pages/ServiceDetails/ServiceDetails";
 import Login from "./Pages/Login/Login";
 import Register from "./Pages/Login/Register/Register";
+import CheckOut from "./Pages/Checkout/CheckOut";
+import RequireAuth from "./Pages/Login/RequireAuth/RequireAuth";
 
 function App() {
   return (
@@ -19,6 +21,14 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/service/:serviceId" element={<ServiceDetails />} />
+        <Route
+          path="/checkout"
+          element={
+            <RequireAuth>
+              <CheckOut />
+            </RequireAuth>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<PageNotFound />} />
