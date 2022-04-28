@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 
 const AddService = () => {
   const onSubmit = (data) => {
-    const url = `http://localhost:5000/service`;
+    const url = `https://ancient-cove-74889.herokuapp.com/service`;
     fetch(url, {
       method: "POST",
       headers: {

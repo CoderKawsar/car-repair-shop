@@ -35,7 +35,7 @@ const CheckOut = () => {
       phone: e.target.phone.value,
     };
     axios
-      .post("http://localhost:5000/order", order)
+      .post("https://ancient-cove-74889.herokuapp.com/order", order)
       .then(function (response) {
         if (response.data.insertedId) {
           toast("Order is Placed!");
