@@ -7,6 +7,7 @@ import {
   useUpdateProfile,
 } from "react-firebase-hooks/auth";
 import SocialLogin from "../SocialLogin/SocialLogin";
+import useToken from "../../../hooks/useToken";
 
 const Register = () => {
   const [agree, setAgree] = useState(false);
@@ -14,6 +15,7 @@ const Register = () => {
   const [createUserWithEmailAndPassword, user, , error] =
     useCreateUserWithEmailAndPassword(auth, { sendEmailVerification: true });
   const [updateProfile, updating, updateError] = useUpdateProfile(auth);
+  const [token] = useToken(user);
 
   let errorElement;
   if (error) {
@@ -35,8 +37,10 @@ const Register = () => {
     // }
     await createUserWithEmailAndPassword(email, password);
     await updateProfile({ displayName: name });
-    navigate("/home");
   };
+  if (token) {
+    navigate("/home");
+  }
   return (
     <div>
       <h2 className="mt-5 text-center">Register</h2>

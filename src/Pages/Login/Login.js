@@ -9,7 +9,7 @@ import auth from "../../firebase.init";
 import SocialLogin from "./SocialLogin/SocialLogin";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import useToken from "../../hooks/useToken";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const Login = () => {
   const passwordRef = useRef("");
   const [signInWithEmailAndPassword, user, , error] =
     useSignInWithEmailAndPassword(auth);
+  const [token] = useToken(user);
 
   const [sendPasswordResetEmail, sending, errorSending] =
     useSendPasswordResetEmail(auth);
@@ -33,17 +34,15 @@ const Login = () => {
     );
   }
 
+  if (token) {
+    navigate(from, { replace: true });
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
     await signInWithEmailAndPassword(email, password);
-    const { data } = await axios.post(
-      "https://ancient-cove-74889.herokuapp.com/login",
-      { email }
-    );
-    localStorage.setItem("accessToken", data.accessToken);
-    navigate(from, { replace: true });
   };
 
   const navigateToRegister = (e) => {
