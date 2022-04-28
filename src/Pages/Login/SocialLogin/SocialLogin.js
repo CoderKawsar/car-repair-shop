@@ -5,12 +5,14 @@ import githubIcon from "../../../images/social/github.png";
 import auth from "../../../firebase.init";
 import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import { useSignInWithGithub } from "react-firebase-hooks/auth";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const SocialLogin = () => {
   const [signInWithGoogle, user, , error1] = useSignInWithGoogle(auth);
   const [signInWithGithub, user1, , error2] = useSignInWithGithub(auth);
   const navigate = useNavigate();
+  let location = useLocation();
+  let from = location.state?.from?.pathname || "/";
 
   let loginError;
   if (error1 || error2) {
@@ -22,7 +24,7 @@ const SocialLogin = () => {
   }
 
   if (user || user1) {
-    navigate("/home");
+    navigate(from, { replace: true });
   }
 
   return (
